@@ -206,8 +206,16 @@ export class System<State extends Record<string, any>> {
    * Flush any optimistic state and reset the optimistic state to the source state.
    */
   flushOptimisticState(): void {
-    this.optimisticState = this.sourceState;
+    // nothing to flush, end early
+    if (this.optimisticEvents.length === 0) {
+      return;
+    }
+
+    // flush all optimistic events
     this.optimisticEvents = [];
+    this.optimisticState = this.sourceState;
+
+    // broadcast to the optimistic subscriptions
     this.optimisticSubscriptions.forEach(subscription => subscription(this.optimisticState));
   }
 

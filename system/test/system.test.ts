@@ -129,4 +129,10 @@ describe('System', () => {
     expect(mockOptimisticSubscription).toHaveBeenCalledTimes(3);
     expect(mockOptimisticSubscription).toHaveBeenNthCalledWith(3, { data: 160 });
   });
+  it('should not broadcast to optimistic subscriptions when nothing was flushed', () => {
+    const { system, mockOptimisticSubscription } = createTestSystem();
+    system.flushExpiredOptimisticState();
+    system.flushOptimisticState();
+    expect(mockOptimisticSubscription).not.toHaveBeenCalled();
+  });
 });

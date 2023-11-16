@@ -2,6 +2,20 @@ import { createServer, Props } from '@krmx/server';
 import { z } from 'zod';
 import { System } from './system';
 
+const abc = () => {
+  const system = new System({ counter: 0 });
+  system.onChange((state) => {
+    console.info(state);
+  });
+  const increment = system.when('increment', z.number(), (state, dispatcher, payload) => {
+    if (dispatcher === 'admin') {
+      state.counter += payload;
+    }
+  });
+  system.dispatch('admin', increment(3));
+};
+abc();
+
 const system = new System({
   // people: [{ username: 'simon', color: 'red' }],
   counters: [0, 0, 0, 0, 0],

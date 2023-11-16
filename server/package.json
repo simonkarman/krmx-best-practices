@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec \"ts-node server.ts\" server.ts"
+    "dev": "nodemon --exec \"ts-node src/server.ts\" src/server.ts",
+    "test": "jest --coverage --verbose",
+    "lint": "eslint . --ext .ts"
   },
   "keywords": [],
   "author": "",

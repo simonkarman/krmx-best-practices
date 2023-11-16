@@ -1,19 +1,12 @@
 'use client';
-import { KrmxLayer } from '@/components/krmx-layer';
+import { KrmxLayer, useSystem } from '@/components/layer';
 import { useKrmx } from '@krmx/client';
-import { produce } from 'immer';
-import { useReducer } from 'react';
+import { decrement, increment } from 'system';
 
-type State = { isValid: boolean };
 export default function MyApp() {
-  const [state, dispatch] = useReducer<State>((_state: State) => {
-    return produce(_state, (state: State) => {
-      state.isValid = false;
-    });
-  }, { isValid: true });
   return (
-    <KrmxLayer messageConsumer={dispatch}>
-      <MyComponent state={state} />
+    <KrmxLayer>
+      <MyComponent />
     </KrmxLayer>
   );
 }
@@ -50,6 +43,28 @@ function MyComponent() {
             </li>),
           )}
       </ul>
+      <SystemViewer />
     </div>
   );
+}
+
+function SystemViewer() {
+  const { state, optimisticState, dispatcher } = useSystem();
+  return <div className='m-2 shadow px-4 py-2 bg-amber-100 border border-black rounded-lg'>
+    <h1 className='font-bold text-xl mt-2 border-b border-black mb-1'>Dispatchers</h1>
+    <div className='flex gap-4'>
+      <button className='p-2 border border-black rounded bg-green-300' onClick={() => dispatcher(increment(1))}>Increment</button>
+      <button className='p-2 border border-black rounded bg-red-300' onClick={() => dispatcher(decrement(1))}>Decrement</button>
+    </div>
+    <div className='flex gap-4 text-center'>
+      <div>
+        <h1 className='font-bold text-xl mt-4 border-b border-black mb-1'>State</h1>
+        <pre>{state.counter}</pre>
+      </div>
+      <div>
+        <h1 className='font-bold text-xl mt-4 border-b border-black mb-1'>Optimistic State</h1>
+        <pre>{optimisticState.counter}</pre>
+      </div>
+    </div>
+  </div>;
 }

@@ -135,4 +135,18 @@ describe('System', () => {
     system.flushOptimisticState();
     expect(mockOptimisticSubscription).not.toHaveBeenCalled();
   });
+  it('should not change initial state during usage', () => {
+    const { system, inc } = createTestSystem();
+    system.dispatch('root', inc(3));
+    system.dispatch('admin', inc(4), true);
+    expect(system.initialState).toStrictEqual({ data: 0 });
+  });
+  it('should be able to reset to the initial state', () => {
+    const { system, inc, mockSubscription, mockOptimisticSubscription } = createTestSystem();
+    system.dispatch('root', inc(3));
+    system.dispatch('admin', inc(4), true);
+    system.reset();
+    expect(mockSubscription).toHaveBeenNthCalledWith(2, { data: 0 });
+    expect(mockOptimisticSubscription).toHaveBeenNthCalledWith(3, { data: 0 });
+  });
 });

@@ -31,6 +31,8 @@ export class System<State extends Record<string, any>> {
     }
   } = {};
 
+  public readonly initialState: State;
+
   private sourceState: State;
   private subscriptions: Subscription<State>[] = [];
 
@@ -50,8 +52,23 @@ export class System<State extends Record<string, any>> {
    * @param initialState An object shaped in any form representing the state of the system.
    */
   constructor(initialState: State) {
-    this.sourceState = produce(initialState, () => {});
+    this.initialState = initialState;
+    this.sourceState = initialState;
     this.optimisticState = this.sourceState;
+  }
+
+  reset(): void {
+    // hard reset state to initial state
+    this.sourceState = this.initialState;
+
+    // flush all optimistic events
+    this.optimisticEvents = [];
+    this.optimisticState = this.sourceState;
+
+    // publish reset to subscribers
+    [ ...this.subscriptions,
+      ...this.optimisticSubscriptions,
+    ].forEach(subscription => subscription(this.sourceState));
   }
 
   /**

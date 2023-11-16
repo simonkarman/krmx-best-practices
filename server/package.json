@@ -1,11 +1,11 @@
 {
-  "name": "system",
+  "name": "server",
+  "private": true,
   "version": "1.0.0",
   "description": "",
-  "main": "dist/src/index.js",
+  "main": "src/server.ts",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "dev": "nodemon --exec \"ts-node src/server.ts\" src/server.ts",
     "test": "jest --coverage --verbose",
     "lint": "eslint . --ext .ts"
   },
@@ -26,7 +26,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "immer": "^10.0.3",
-    "zod": "^3.22.4"
+    "@krmx/server": "^0.2.4"
   }
 }

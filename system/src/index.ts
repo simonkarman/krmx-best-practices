@@ -6,8 +6,12 @@ const increment = system.when('increment', z.number().min(1), (state, dispatcher
   state.counter += payload;
 });
 const decrement = system.when('decrement', z.number().min(1), (state, dispatcher, payload) => {
-  if (dispatcher === 'admin') {
-    state.counter -= payload;
-  }
+  state.counter -= payload;
 });
 export { system, increment, decrement };
+
+// TODO: do we really need these type exports?
+const actions = [increment, decrement];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Action = typeof actions extends (infer T extends (...any: any) => any)[] ? ReturnType<T> : never;
+export type SystemState = typeof system extends System<infer X> ? X : never;

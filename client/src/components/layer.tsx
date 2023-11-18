@@ -1,6 +1,6 @@
 import { KrmxProvider, useKrmx } from '@krmx/client';
-import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
-import { system, Action, SystemState } from 'system';
+import { createContext, MutableRefObject, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
+import { system, System, Action, SystemState } from 'system';
 
 export type MessageConsumer = <TMessage extends {type: string}>(message: TMessage) => void;
 
@@ -19,28 +19,31 @@ export const useSystem = () => {
 
 export function KrmxLayer(props: PropsWithChildren) {
   const [serverUrl] = useState('ws://localhost:8082');
-  const [subscription, setSubscription] = useState<MessageConsumer>();
+  const systemRef = useRef(system);
   return (
     <KrmxProvider
       serverUrl={serverUrl}
       onMessage={(message) => {
-        console.info(message);
-        if (subscription) {
-          subscription(message);
+        if (message?.type === 'sys') {
+          const { dispatcher, type, payload } = message['payload'] as unknown as { dispatcher: string, type: string, payload: unknown };
+          if (systemRef.current.dispatch(dispatcher, { type, payload }) !== true) {
+            console.error('[ERROR] system dispatch failed', { dispatcher, type, payload });
+          }
         }
       }}
     >
-      <KrmxSystem setSubscription={setSubscription}>
+      <KrmxSystem systemRef={systemRef}>
         {props.children}
-        {subscription === undefined ? 'System is not subscribed!' : 'Ready!'}
       </KrmxSystem>
     </KrmxProvider>
   );
 }
 
-export function KrmxSystem(props: PropsWithChildren<{ setSubscription: (subscription?: MessageConsumer) => void }>) {
-  const { isLinked, username, unlink, send } = useKrmx();
-  const systemRef = useRef(system);
+export function KrmxSystem(props: PropsWithChildren<{
+  systemRef: MutableRefObject<System<{counter: number}>>,
+}>) {
+  const { systemRef } = props;
+  const { isLinked, username, send } = useKrmx();
   const [state, setState] = useState(system.initialState);
   const [optimisticState, setOptimisticState] = useState(system.initialState);
   useEffect(() => {
@@ -50,18 +53,6 @@ export function KrmxSystem(props: PropsWithChildren<{ setSubscription: (subscrip
   useEffect(() => {
     if (isLinked) {
       systemRef.current.reset();
-
-      // TODO: why does this not work?
-      console.info('Subscribing now!');
-      props.setSubscription((message) => {
-        if (message?.type === 'sys') {
-          const { dispatcher, type, payload } = message['payload'] as unknown as { dispatcher: string, type: string, payload: unknown };
-          if (systemRef.current.dispatch(dispatcher, { type, payload }) !== true) {
-            console.error('[ERROR] system dispatch failed', { dispatcher, type, payload });
-            unlink();
-          }
-        }
-      });
     }
   }, [isLinked]);
   const dispatcher = (action: Action): boolean => {

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { System } from './system';
 
-const system = new System({ counter: 0 });
+const system = new System({ counter: 0, additional: { data: [3, 4, 5] } });
 const increment = system.when('increment', z.number().min(1), (state, dispatcher, payload) => {
   state.counter += payload;
 });
@@ -9,6 +9,9 @@ const decrement = system.when('decrement', z.number().min(1), (state, dispatcher
   state.counter -= payload;
 });
 export { system, increment, decrement };
+
+// TODO: move somewhere else?
+export * from './system';
 
 // TODO: do we really need these type exports?
 const actions = [increment, decrement];

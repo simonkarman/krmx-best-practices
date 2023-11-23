@@ -18,7 +18,7 @@ export default function MyApp() {
 }
 
 function MyComponent() {
-  const { isConnected, isLinked, link, rejectionReason, send, leave, users } = useKrmx();
+  const { username, isConnected, isLinked, link, rejectionReason, send, leave, users } = useKrmx();
   const [ usernameInput, setUsernameInput ] = useState('');
   if (!isConnected) {
     // Your logic for when you're not connected to the server goes here
@@ -69,7 +69,7 @@ function MyComponent() {
     <div className='flex gap-8 m-2 shadow px-4 py-2 bg-white border border-black rounded-lg'>
       <div>
         <h2 className='text-xl mt-2 mb-2'>
-        Welcome <strong>simon</strong>!
+        Welcome <strong>{username}</strong>!
         </h2>
         <div className='flex gap-4'>
           <button className='px-2 py-1 border border-black rounded bg-blue-300' onClick={() => send({ type: 'custom/hello' })}>

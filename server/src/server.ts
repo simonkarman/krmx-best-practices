@@ -1,6 +1,6 @@
 import { createServer, Message, Props } from '@krmx/server';
 import { createHash } from 'crypto';
-import { system } from 'system';
+import { joiner, root, system } from 'system';
 
 const BATCH_SIZE = 100;
 
@@ -44,8 +44,8 @@ system.onChange((state) => {
   }
 });
 
-// When we receive a message from a client, verify it against the system and broadcast on success
-server.on('message', (username, message) => {
+// When dispatch a message, verify it against the system and broadcast on success
+const dispatchMessage = (username: string, message: Message) => {
   if (system.dispatch(username, message) === true) {
     const payload: SysMessagePayload = {
       dispatcher: username,
@@ -61,6 +61,14 @@ server.on('message', (username, message) => {
     };
     server.broadcast(sysMessage);
   }
+};
+
+// Directly try and dispatch client messages
+server.on('message', dispatchMessage);
+
+// Do server specific functionality
+server.on('join', (username) => {
+  dispatchMessage(root, joiner(username));
 });
 
 // TODO: on shutdown, save all dispatched messages to a history file for re-watch functionality

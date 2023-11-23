@@ -1,14 +1,21 @@
 import { z } from 'zod';
 import { System } from './system';
 
-const system = new System({ counter: 0, additional: { data: [3, 4, 5] } });
-const increment = system.when('increment', z.number().min(1), (state, dispatcher, payload) => {
+export const system = new System({ counter: 0, joiners: [] as string[] });
+export const root = '<root>';
+export const joiner = system.when('joiner', z.string().min(3), (state, dispatcher, payload) => {
+  if (dispatcher === root) {
+    if (state.joiners.indexOf(payload) === -1) {
+      state.joiners.push(payload);
+    }
+  }
+});
+export const increment = system.when('increment', z.number().min(1), (state, dispatcher, payload) => {
   state.counter += payload;
 });
-const decrement = system.when('decrement', z.number().min(1), (state, dispatcher, payload) => {
+export const decrement = system.when('decrement', z.number().min(1), (state, dispatcher, payload) => {
   state.counter -= payload;
 });
-export { system, increment, decrement };
 
 // TODO: move somewhere else?
 export * from './system';

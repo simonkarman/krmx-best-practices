@@ -24,6 +24,7 @@ export function KrmxLayer(props: PropsWithChildren) {
   const handlePayload = (messagePayload: unknown) => {
     const { dispatcher, type, payload, hash } = messagePayload as unknown as { dispatcher: string, type: string, payload: unknown, hash?: string };
     if (systemRef.current.dispatch(dispatcher, { type, payload }) !== true) {
+      // TODO: disconnect on a verified dispatch that fails
       console.error('[ERROR] system dispatch failed', { dispatcher, type, payload });
     }
     if (hash) {
@@ -31,6 +32,7 @@ export function KrmxLayer(props: PropsWithChildren) {
       const state = systemRef.current.sourceState;
       const computedHash = createHash('sha256').update(JSON.stringify(state)).digest('hex');
       if (hash !== computedHash) {
+        // TODO: disconnect on hash mismatch
         console.error('[ERROR] system corrupted due to mismatching hashes', hash, computedHash);
       }
     }

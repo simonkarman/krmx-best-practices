@@ -1,5 +1,5 @@
 import { z, ZodError } from 'zod';
-import { System } from '../src/system';
+import { System } from '../src';
 
 const createTestSystem = () => {
   const system = new System({ data: 0 });

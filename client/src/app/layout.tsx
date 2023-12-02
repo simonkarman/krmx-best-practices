@@ -11,8 +11,24 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html>
+      <head>
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+      </head>
+      <body className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 flex flex-col items-center justify-between mx-auto h-screen">
+        <div className='flex-grow flex flex-col justify-center items-center w-full'>
+          {children}
+        </div>
+        <footer className='py-1 px-3 text-center md:mb-2 md:left-2 text-gray-500 dark:text-gray-400 text-xs md:text-sm'>
+          <span className=''>Build with</span>{' '}
+          <a href='https://github.com/simonkarman/krmx-best-practices' className='font-semibold text-gray-900 dark:text-gray-50'>Krmx</a>
+          {' '}by{' '}
+          <a href='https://www.simonkarman.nl' className='text-blue-800 dark:text-blue-200'>simonkarman</a>
+        </footer>
+      </body>
     </html>
   );
 }

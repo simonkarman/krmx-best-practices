@@ -5,7 +5,7 @@
   "description": "",
   "main": "src/server.ts",
   "scripts": {
-    "dev": "nodemon --exec \"ts-node src/server.ts\" src/server.ts",
+    "dev": "(rm -r output/ && nodemon --ignore 'output/*.json' --exec \"ts-node src/index.ts\" src/index.ts)",
     "test": "jest --coverage --verbose",
     "lint": "eslint . --ext .ts"
   },
@@ -26,6 +26,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@krmx/server": "^0.2.4"
+    "@krmx/server": "^0.2.4",
+    "zod": "^3.22.4"
   }
 }

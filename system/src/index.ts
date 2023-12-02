@@ -1,27 +1,16 @@
-import { z } from 'zod';
-import { System } from './system';
-
-export const system = new System({ counter: 0, joiners: [] as string[] });
-export const root = '<root>';
-export const joiner = system.when('joiner', z.string().min(3), (state, dispatcher, payload) => {
-  if (dispatcher === root) {
-    if (state.joiners.indexOf(payload) === -1) {
-      state.joiners.push(payload);
-    }
-  }
-});
-export const increment = system.when('increment', z.number().min(1), (state, dispatcher, payload) => {
-  state.counter += payload;
-});
-export const decrement = system.when('decrement', z.number().min(1), (state, dispatcher, payload) => {
-  state.counter -= payload;
-});
-
-// TODO: move somewhere else?
+export * from './utils/system';
 export * from './system';
 
-// TODO: do we really need these type exports?
-const actions = [increment, decrement];
+import { actions, system } from './system';
+import { System } from './utils/system';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Action = typeof actions extends (infer T extends (...any: any) => any)[] ? ReturnType<T> : never;
+type ExtractReturnTypes<T extends readonly ((i: any) => any)[]> = [
+  ... {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [K in keyof T]: T[K] extends ((i: any) => infer R) ? R : never
+  }
+][number];
+// export type Action = typeof actions extends (infer T extends (...any: any) => any)[] ? ReturnType<T> : never;
+export type Action = ExtractReturnTypes<typeof actions>;
 export type SystemState = typeof system extends System<infer X> ? X : never;

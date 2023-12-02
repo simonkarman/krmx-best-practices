@@ -3,8 +3,6 @@ import { createHash } from 'crypto';
 import { createContext, MutableRefObject, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
 import { system, System, Action, SystemState } from 'system';
 
-export type MessageConsumer = <TMessage extends {type: string}>(message: TMessage) => void;
-
 const SystemContext = createContext<{
   state: SystemState,
   optimisticState: SystemState,
@@ -18,8 +16,7 @@ export const useSystem = () => {
   return useContext(SystemContext);
 };
 
-export function KrmxLayer(props: PropsWithChildren) {
-  const [serverUrl] = useState('ws://localhost:8082');
+export function KrmxWithSystemProvider(props: PropsWithChildren & { serverUrl: string }) {
   const systemRef = useRef(system);
   const handlePayload = (messagePayload: unknown) => {
     const { dispatcher, type, payload, hash } = messagePayload as unknown as { dispatcher: string, type: string, payload: unknown, hash?: string };
@@ -39,27 +36,30 @@ export function KrmxLayer(props: PropsWithChildren) {
   };
   return (
     <KrmxProvider
-      serverUrl={serverUrl}
-      onMessage={(message) => {
+      serverUrl={props.serverUrl}
+      onMessage={(message: {
+        type: string,
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        payload?: any
+      }) => {
         if (message?.type === 'sys-reset') {
           systemRef.current.reset();
         } else if (message?.type === 'sys') {
           handlePayload(message['payload']);
         } else if (message?.type === 'sys-batch') {
-          console.info('batch', message);
-          message['payload'].forEach(messagePayload => handlePayload(messagePayload));
+          message['payload'].forEach((messagePayload: unknown) => handlePayload(messagePayload));
         }
       }}
     >
-      <KrmxSystem systemRef={systemRef}>
+      <DispatcherAndContextProvider systemRef={systemRef}>
         {props.children}
-      </KrmxSystem>
+      </DispatcherAndContextProvider>
     </KrmxProvider>
   );
 }
 
-export function KrmxSystem(props: PropsWithChildren<{
-  systemRef: MutableRefObject<System<{counter: number}>>,
+function DispatcherAndContextProvider(props: PropsWithChildren<{
+  systemRef: MutableRefObject<System<SystemState>>,
 }>) {
   const { systemRef } = props;
   const { username, send } = useKrmx();

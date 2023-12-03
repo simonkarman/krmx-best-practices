@@ -77,15 +77,6 @@ function KrmxLoginForm() {
   return (<>
     <div className='w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700'>
       <div className="px-6 py-2 space-y-4 sm:space-y-6 sm:px-8 sm:py-4">
-        <ul className='flex gap-1 text-sm md:text-base pb-0.5 w-full justify-between border-b border-gray-100 dark:border-gray-700'>
-          {Object.entries(users)
-            .map(([otherUsername, { isLinked }]) => (
-              <li key={otherUsername} className='flex items-center gap-2 tracking-tight'>
-                <span>{isLinked ? '👤' : '🚫'}</span>
-                <span>{otherUsername}</span>
-              </li>),
-            )}
-        </ul>
         <div className='flex items-center justify-between gap-2'>
           <h2 className='text-lg md:text-xl'>
           Hi, <strong>{username[0].toUpperCase() + username.slice(1)}</strong> 👋
@@ -95,33 +86,51 @@ function KrmxLoginForm() {
           Leave
           </button>
         </div>
+        <ul className='flex gap-1 text-sm md:text-base pb-0.5 w-full justify-between border-b border-gray-100 dark:border-gray-700 flex-wrap'>
+          {Object.entries(users)
+            .map(([otherUsername, { isLinked }]) => (
+              <li
+                key={otherUsername}
+                className={`flex items-center gap-2 tracking-tight ${isLinked
+                  ? 'text-gray-800 dark:text-gray-400'
+                  : 'text-gray-400 dark:text-gray-600'}`}
+              >
+                <span>{isLinked ? '👤' : '🚫'}</span>
+                <span>{otherUsername}</span>
+              </li>),
+            )}
+        </ul>
       </div>
     </div>
-    {/*<DispatchersAndState />*/}
+    <DispatchersAndState />
   </>);
 }
 
 function DispatchersAndState() {
   const { state, optimisticState, dispatcher } = useSystem();
   return <>
-    <div className='m-2 shadow px-4 py-2 bg-white border border-black rounded-lg'>
-      <h2 className='font-bold text-xl mt-2 border-b border-black mb-1'>Dispatchers</h2>
-      <div className='flex gap-4'>
-        <button className='px-2 py-1 border border-black rounded bg-green-300' onClick={() => dispatcher(increment(1))}>Increment</button>
-        <button className='px-2 py-1 border border-black rounded bg-red-300' onClick={() => dispatcher(decrement(1))}>Decrement</button>
-      </div>
-    </div>
-    <div className='m-2 shadow px-4 py-2 bg-white border border-black rounded-lg'>
-      <div className='flex gap-4'>
-        <div>
-          <h2 className='font-bold text-xl mt-4 border-b border-black mb-1'>State</h2>
-          <p>Counter: {state.counter}</p>
-          <pre className='bg-black text-white p-2'>{JSON.stringify(state, undefined, 2)}</pre>
-        </div>
-        <div>
-          <h2 className='font-bold text-xl mt-4 border-b border-black mb-1'>Optimistic State</h2>
-          <p>Counter: {state.counter}</p>
-          <pre className='bg-black text-white p-2'>{JSON.stringify(optimisticState, undefined, 2)}</pre>
+    <div className='w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700'>
+      <div className="px-6 py-2 space-y-4 sm:space-y-6 sm:px-8 sm:py-4">
+        <h2 className='font-bold text-xl mt-2'>State</h2>
+        <div className='w-full flex items-center justify-center gap-4'>
+          <button
+            className='text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium
+              rounded-lg text-sm px-5 py-1 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800'
+            onClick={() => dispatcher(decrement(1))}
+          >
+          Decrement
+          </button>
+          <p className='flex-grow text-center'>
+            <span className='font-bold text-6xl'>{optimisticState.counter}</span>
+            <span className='ml-2 text-gray-600 dark:text-gray-300'>{state.counter}</span>
+          </p>
+          <button
+            className='text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium
+              rounded-lg text-sm px-5 py-1 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800'
+            onClick={() => dispatcher(increment(1))}
+          >
+          Increment
+          </button>
         </div>
       </div>
     </div>

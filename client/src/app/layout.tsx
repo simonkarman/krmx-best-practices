@@ -18,8 +18,10 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 flex flex-col items-center justify-between mx-auto h-screen">
-        <div className='flex-grow flex flex-col justify-center gap-4 items-center w-full'>
+      <body
+        className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 flex flex-col items-center justify-between mx-auto h-screen h-[100svh]"
+      >
+        <div className='flex-grow flex flex-col justify-center gap-4 items-center w-full p-2'>
           {children}
         </div>
         <footer className='py-1 px-3 text-center md:mb-2 md:left-2 text-gray-500 dark:text-gray-400 text-xs md:text-sm'>

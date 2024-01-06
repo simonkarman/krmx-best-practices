@@ -5,7 +5,9 @@ import { useState } from 'react';
 import { decrement, increment } from 'system';
 
 export default function Page() {
-  const [serverUrl] = useState('ws://localhost:8082');
+  // eslint-disable-next-line no-process-env
+  const krmxUrl = process.env.NEXT_PUBLIC_KRMX_URL || 'localhost';
+  const [serverUrl] = useState(`ws://${krmxUrl}:8082`);
   return (
     <KrmxWithSystemProvider serverUrl={serverUrl}>
       <KrmxLoginForm />
@@ -45,7 +47,9 @@ function KrmxLoginForm() {
             e.preventDefault();
           }}>
             <div>
-              <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your name</label>
+              <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Your name
+              </label>
               <input
                 type="username" name="username" id="username"
                 placeholder="username" required
@@ -57,12 +61,13 @@ function KrmxLoginForm() {
                   setUsernameInput(event.target.value);
                 }}
               />
+              <div className="pt-1 w-full text-right text-sm text-gray-300 dark:text-gray-600">you can only use a-z, A-Z and 0-9</div>
             </div>
             <button
-              type='submit'
+              type="submit"
               className="w-full text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium
               rounded-lg text-sm px-5 py-2.5 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">
-                Sign in
+                Join
             </button>
           </form>
           {rejectionReason && <p className="text-sm tracking-tight text-gray-700 dark:text-gray-300">
@@ -84,12 +89,12 @@ function KrmxLoginForm() {
           <h2 className='text-lg md:text-xl'>
           Hi, <strong>{username[0].toUpperCase() + username.slice(1)}</strong> 👋
           </h2>
-          <button className='text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium
-              rounded-lg text-sm px-5 py-1 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800' onClick={leave}>
+          <button className='text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium
+              rounded-lg text-sm px-5 py-1 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800' onClick={leave}>
           Leave
           </button>
         </div>
-        <ul className='flex gap-1 text-sm md:text-base pb-0.5 w-full justify-between border-b border-gray-50 dark:border-gray-700 flex-wrap'>
+        <ul className='flex gap-4 text-sm md:text-base pb-0.5 w-full justify-left border-b border-gray-50 dark:border-gray-700 flex-wrap'>
           {Object.entries(users)
             .map(([otherUsername, { isLinked }]) => (
               <li
@@ -99,7 +104,7 @@ function KrmxLoginForm() {
                   : 'text-gray-400 dark:text-gray-400'}`}
               >
                 <span>{isLinked ? '👤' : '🚫'}</span>
-                <span>{otherUsername}</span>
+                <span>{otherUsername[0].toUpperCase() + otherUsername.slice(1)}</span>
               </li>),
             )}
         </ul>

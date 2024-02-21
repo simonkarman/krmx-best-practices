@@ -2,8 +2,7 @@ import { createServer, Message, Props } from '@krmx/server';
 import { createHash } from 'crypto';
 import * as fs from 'fs';
 import { z } from 'zod';
-import { system } from 'system';
-import { BATCH_SIZE, HISTORY_FILE_NAME, PORT, setup } from './server';
+import { BATCH_SIZE, customSystem, HISTORY_FILE_NAME, PORT, setup } from './server';
 
 // Implementation
 const props: Props = { /* configure here */ };
@@ -40,7 +39,7 @@ server.on('link', (username) => {
 
 // Keep track of a history of hashes of the state
 const hashHistory: string[] = [];
-system.onChange((state) => {
+customSystem.system.onChange((state) => {
   if (history.length % BATCH_SIZE === 0) {
     hashHistory.push(createHash('sha256').update(JSON.stringify(state)).digest('hex'));
   }
@@ -48,7 +47,7 @@ system.onChange((state) => {
 
 // When dispatch a message, verify it against the system and broadcast on success
 const dispatchMessage = (dispatcher: string, message: Message) => {
-  if (system.dispatch(dispatcher, message) === true) {
+  if (customSystem.system.dispatch(dispatcher, message) === true) {
     const payload: SysMessagePayload = {
       dispatcher,
       ...message,

@@ -1,0 +1,22 @@
+{
+  "name": "playground",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/json8-patch": "^1.0.4",
+    "typescript": "^5.4.2"
+  },
+  "dependencies": {
+    "@krmx/server": "^0.4.1",
+    "immer": "^10.0.4",
+    "json8-patch": "^1.0.6",
+    "zod": "^3.22.4"
+  }
+}

@@ -1,12 +1,12 @@
 {
-  "name": "krmx-best-practices",
-  "version": "1.0.0",
+  "name": "krmx-state",
+  "version": "0.0.1",
   "description": "",
   "scripts": {
     "postinstall": "npm run install-all",
-    "install-all": "npm --prefix system install && npm --prefix server install && npm --prefix client install",
+    "install-all": "npm --prefix state install && npm --prefix server install && npm --prefix client install",
     "dev": "npm-run-all --parallel dev:*",
-    "dev:system": "npm run --prefix system dev",
+    "dev:state": "npm run --prefix state dev",
     "dev:server": "npm run --prefix server dev",
     "dev:client": "npm run --prefix client dev"
   },

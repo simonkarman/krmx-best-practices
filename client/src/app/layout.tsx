@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Krmx - Best Practices',
-  description: 'Showcase of best practices when using Krmx with React',
+  title: 'Krmx - State',
+  description: 'Showcase of Krmx State',
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
         </div>
         <footer className='py-1 px-3 text-center md:mb-2 md:left-2 text-gray-500 dark:text-gray-400 text-xs md:text-sm'>
           <span className=''>Build with</span>{' '}
-          <a href='https://github.com/simonkarman/krmx-best-practices' className='font-semibold text-gray-900 dark:text-gray-50'>Krmx</a>
+          <a href='https://github.com/simonkarman/krmx' className='font-semibold text-gray-900 dark:text-gray-50'>Krmx</a>
           {' '}by{' '}
           <a href='https://www.simonkarman.nl' className='text-blue-800 dark:text-blue-200'>simonkarman</a>
         </footer>

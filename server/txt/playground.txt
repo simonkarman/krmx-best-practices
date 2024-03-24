@@ -1,3 +1,5 @@
+text!
+
 import { z } from 'zod';
 import { createServer } from '@krmx/server';
 import { KrmxState } from './krmx-state';

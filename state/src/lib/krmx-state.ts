@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// TODO: fix any!
 import { z, ZodAny, ZodAnyDef, ZodType, ZodUndefined } from 'zod';
 
 function isValidKrmxIdentifier(identifier: string): boolean {
@@ -6,10 +8,12 @@ function isValidKrmxIdentifier(identifier: string): boolean {
 
 function assertValidKrmxIdentifier(identifier: string): void {
   if (!isValidKrmxIdentifier(identifier)) {
-    const information = `ensure it doesn't contain a '/' character and that it isn't equal to the reserved keyword 'krmx'`;
+    const information = 'ensure it doesn\'t contain a \'/\' character and that it isn\'t equal to the reserved keyword \'krmx\'';
     throw new Error(`identifier '${identifier}' is not a valid krmx identifier -- ${information}`);
   }
 }
+
+type KrmxCallback<State> = (state: State, username: string) => void;
 
 type ActionDefinition<State> = {
   identifier: string,
@@ -60,7 +64,8 @@ class PhaseDefinition<PhaseIdentifier extends string = any, Origin = any, State 
     }
     assertValidKrmxIdentifier(identifier);
     if (this.actions.has(identifier)) {
-      throw new Error(`cannot define an action with identifier '${identifier}', as an action with that identifier has already been defined within the '${this.identifier}' phase`);
+      throw new Error(`cannot define an action with identifier '${identifier}', `
+        + `as an action with that identifier has already been defined within the '${this.identifier}' phase`);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -82,7 +87,7 @@ class PhaseDefinition<PhaseIdentifier extends string = any, Origin = any, State 
   }
 }
 
-type KrmxCallback<State> = (state: State, username: string) => void;
+export type ExtractView<T> = T extends PhaseDefinition<any, any, any, infer R> ? R : never;
 
 export class KrmxState {
   private extracted: boolean = false;
@@ -103,7 +108,7 @@ export class KrmxState {
     }
     assertValidKrmxIdentifier(identifier);
     if (this.phaseDefinitions.has(identifier)) {
-      throw new Error(`cannot define a phase with identifier '${identifier}', as a phase with that identifier has already been defined`)
+      throw new Error(`cannot define a phase with identifier '${identifier}', as a phase with that identifier has already been defined`);
     }
     const phaseDefinition = new PhaseDefinition<PhaseIdentifier, Origin, State, View>(
       identifier,

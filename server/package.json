@@ -1,11 +1,12 @@
 {
   "name": "server",
+  "type": "module",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "src/server.ts",
   "scripts": {
-    "dev": "((rm -r output/ || true) && nodemon --ignore 'output/*.json' --exec \"ts-node src/index.ts\" src/index.ts)",
+    "dev": "nodemon --exec \"ts-node src/index.ts\" src/index.ts",
     "test": "jest --coverage --verbose",
     "lint": "eslint . --ext .ts"
   },
@@ -14,6 +15,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^29.5.8",
+    "@types/json8-patch": "^1.0.4",
     "@types/node": "^20.9.0",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.11.0",
@@ -27,7 +29,10 @@
   },
   "dependencies": {
     "@krmx/server": "^0.4.1",
-    "system": "file:../system",
+    "immer": "^10.0.4",
+    "json8-patch": "^1.0.6",
+    "jsondiffpatch": "^0.6.0",
+    "state": "file:../state",
     "zod": "^3.22.4"
   }
 }

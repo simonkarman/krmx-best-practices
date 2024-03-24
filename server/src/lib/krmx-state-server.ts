@@ -1,7 +1,7 @@
 import { Message, Server as KrmxServer } from '@krmx/server';
 import { produce } from 'immer';
-import jsonPatch from 'json8-patch';
-import { KrmxState } from './krmx-state';
+import { diff } from 'jsondiffpatch';
+import { KrmxState } from 'state';
 
 // TODO: allow multiple states to be active simultaneously (to capture logic more gradually)
 //       -- add enablePhase(...) and disablePhase(...) and make sure that switchPhase(...) disables current phase and enables the next
@@ -13,7 +13,7 @@ const krmxMessagePrefix = 'krmx-state';
 export function attachTo(
   server: KrmxServer,
   state: KrmxState,
-  initialPhase: { phase: string, origin: any },
+  initialPhase: { phase: string, origin: unknown },
 ) {
   if (server.getStatus() !== 'initializing') {
     throw new Error(`can only attach state to a server that is initializing, while server is '${server.getStatus()}'`);
@@ -24,8 +24,8 @@ export function attachTo(
   let phaseDefinition = phaseDefinitions.get(phaseIdentifier)!._extract();
   let phaseState = phaseDefinition.originMapper(initialPhase.origin);
 
-  let switchPhaseIndication: undefined | { phase: string, origin: any } = undefined;
-  let views: Map<string, any> = new Map();
+  let switchPhaseIndication: undefined | { phase: string, origin: unknown } = undefined;
+  const views: Map<string, unknown> = new Map();
 
   const communicatePhaseTo = (username: string) => {
     const view = phaseDefinition.viewMapper(phaseState, username);
@@ -34,19 +34,22 @@ export function attachTo(
       payload: { phaseIdentifier, view },
     });
     views.set(username, view);
-  }
+  };
 
-  const alterPhaseState = (stateModifier: (state: any) => void) => {
-    phaseState = produce(state, stateModifier, undefined);
+  const alterPhaseState = (stateModifier: (state: unknown) => void) => {
+    phaseState = produce(phaseState, stateModifier, undefined);
     server.getUsers().forEach(({ username, isLinked }) => {
       if (!isLinked) {
         return;
       }
       const previousView = views.get(username) ?? {};
-      const nextView = produce(phaseState, (phaseState: any) => phaseDefinition.viewMapper(phaseState, username), undefined);
-      const patches = jsonPatch.diff(previousView, nextView);
-      server.send(username, { type: `${krmxMessagePrefix}/patches`, payload: { phaseIdentifier, patches } });
-      views.set(username, nextView);
+      const nextView = produce(phaseState, (phaseState: unknown) => phaseDefinition.viewMapper(phaseState, username), undefined);
+      const delta = diff(previousView, nextView);
+
+      if (delta) {
+        server.send(username, { type: `${krmxMessagePrefix}/delta`, payload: { phaseIdentifier, delta } });
+        views.set(username, nextView);
+      }
     });
 
     if (!switchPhaseIndication) {
@@ -65,10 +68,13 @@ export function attachTo(
     });
   };
 
-  const switchPhase = (to: { phase: string, origin: any }) => {
+  const switchPhase = (to: { phase: string, origin: unknown }) => {
     // note: if switched multiple times in a single, only the last switch is captured!
     if (switchPhaseIndication !== undefined) {
-      console.warn(`[warn] switching to phase '${to.phase}' overwrites an existing intention to switch to phase '${switchPhaseIndication.phase}'. Is this intentional?`);
+      console.warn(
+        `[warn] intention to switch to phase '${to.phase}' overwrites an existing intention to phase '${switchPhaseIndication.phase}'.`
+        + ' Was this intentional?',
+      );
     }
 
     // defer actual switching of phase until current alteration has completely finished
@@ -99,17 +105,22 @@ export function attachTo(
   });
 
   server.on('message', (username: string, message: Message & { payload?: unknown }) => {
+    const failure = (reason: string) => {
+      server.send(username, { type: `${krmxMessagePrefix}/failure`, payload: { id: (message as any)?.metadata?.id, reason } });
+    };
     if (!message.type.startsWith(`${phaseIdentifier}/`)) {
       return;
     }
     const actionIdentifier = message.type.substring(phaseIdentifier.length + 1);
     const action = phaseDefinition.actions.get(actionIdentifier);
     if (action === undefined) {
-      return; // TODO: should this be considered an error?
+      failure(`${actionIdentifier} does not exist on ${phaseIdentifier} phase`);
+      return;
     }
     const payload = action.payloadSchema.safeParse(message.payload);
     if (!payload.success) {
-      return; // TODO: should this be considered an error?
+      failure(`${actionIdentifier} on ${phaseIdentifier} phase requires a different schema (${payload.error.errors.map(e => e.message).join(', ')})`);
+      return;
     }
     alterPhaseState((state) => action.serverHandler({ state, payload: payload.data, initiator: username, switchPhase }));
   });

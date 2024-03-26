@@ -1,14 +1,12 @@
 import { Message, Server as KrmxServer } from '@krmx/server';
 import { produce } from 'immer';
 import { diff } from 'jsondiffpatch';
-import { KrmxState } from 'state';
+import { KrmxStatePrefix, KrmxState } from 'state';
 
 // TODO: allow multiple states to be active simultaneously (to capture logic more gradually)
 //       -- add enablePhase(...) and disablePhase(...) and make sure that switchPhase(...) disables current phase and enables the next
 //   open questions: what about having the same phase enabled multiple times? and what about accessing data from another phase? is phase even the
 //                   correct name if we would allow concurrent phases?
-
-const krmxMessagePrefix = 'krmx-state';
 
 export function attachTo(
   server: KrmxServer,
@@ -30,7 +28,7 @@ export function attachTo(
   const communicatePhaseTo = (username: string) => {
     const view = phaseDefinition.viewMapper(phaseState, username);
     server.send(username, {
-      type: `${krmxMessagePrefix}/phase`,
+      type: `${KrmxStatePrefix}/phase`,
       payload: { phaseIdentifier, view },
     });
     views.set(username, view);
@@ -47,7 +45,7 @@ export function attachTo(
       const delta = diff(previousView, nextView);
 
       if (delta) {
-        server.send(username, { type: `${krmxMessagePrefix}/delta`, payload: { phaseIdentifier, delta } });
+        server.send(username, { type: `${KrmxStatePrefix}/delta`, payload: { phaseIdentifier, delta } });
         views.set(username, nextView);
       }
     });
@@ -106,7 +104,7 @@ export function attachTo(
 
   server.on('message', (username: string, message: Message & { payload?: unknown }) => {
     const failure = (reason: string) => {
-      server.send(username, { type: `${krmxMessagePrefix}/failure`, payload: { id: (message as any)?.metadata?.id, reason } });
+      server.send(username, { type: `${KrmxStatePrefix}/failure`, payload: { id: (message as any)?.metadata?.id, reason } });
     };
     if (!message.type.startsWith(`${phaseIdentifier}/`)) {
       return;

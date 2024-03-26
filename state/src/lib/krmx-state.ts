@@ -1,14 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// TODO: fix any!
 import { z, ZodAny, ZodAnyDef, ZodType, ZodUndefined } from 'zod';
 
+export const KrmxStatePrefix = 'krmx-state';
+
 function isValidKrmxIdentifier(identifier: string): boolean {
-  return identifier !== 'krmx' && !identifier.includes('/');
+  return identifier !== 'krmx' && identifier !== KrmxStatePrefix && !identifier.includes('/');
 }
 
 function assertValidKrmxIdentifier(identifier: string): void {
   if (!isValidKrmxIdentifier(identifier)) {
-    const information = 'ensure it doesn\'t contain a \'/\' character and that it isn\'t equal to the reserved keyword \'krmx\'';
+    const information = `ensure it doesn't contain a '/' character and that it isn't equal to the reserved keyword 'krmx' or '${KrmxStatePrefix}'`;
     throw new Error(`identifier '${identifier}' is not a valid krmx identifier -- ${information}`);
   }
 }

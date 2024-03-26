@@ -13,7 +13,6 @@ const createPlayer = (username: string): LobbyState['players'][number] => {
   return { username, color: 'red', ready: false, secret: Math.floor(Math.random() * 10) + 1 };
 };
 
-// TODO: fix error
 const lobbyPhase = state.definePhase(
   'lobby',
   (): LobbyState => ({ players: [] }),
@@ -30,7 +29,7 @@ const lobbyPhase = state.definePhase(
   },
 );
 export const lobbyPhaseTo = lobbyPhase.to.bind(lobbyPhase);
-export type LobbyView = ExtractView<typeof lobbyPhase>;
+// export type LobbyView = ExtractView<typeof lobbyPhase>;
 export const lobbyReadyAction = lobbyPhase.defineAction(
   'ready',
   z.boolean(),

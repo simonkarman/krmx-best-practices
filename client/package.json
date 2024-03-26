@@ -18,11 +18,12 @@
     "eslint": "8.53.0",
     "eslint-config-next": "14.0.2",
     "immer": "^10.0.3",
+    "jsondiffpatch": "^0.6.0",
     "next": "14.0.2",
     "postcss": "8.4.31",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "system": "file:../system",
+    "state": "file:../state",
     "tailwindcss": "3.3.5",
     "typescript": "5.2.2"
   }
